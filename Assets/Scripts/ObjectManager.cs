@@ -34,7 +34,7 @@ public class ObjectManager : MonoBehaviour
     public Transform pokeball;
     Vector3 originPokeballPos;
     public float throwPowerMultiplier = 0.005f;
-
+    public float pokeballResetTime = 3;
     // Start is called before the first frame update
     void Start()
     {
@@ -59,9 +59,7 @@ public class ObjectManager : MonoBehaviour
     // 목적: ARRay를 발사하여 검출된 Plane의 정보를 받아 그 위치에 Indicator를 위치시킨다.
     void DetectPlane()
     {
-
 #if UNITY_EDITOR
-
         // 내 스크린 스페이스의 클릭된 지점으로 부터 레이를 발사한다.
         // 1. 스크린을 터치한 좌표
         Vector3 touchPos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane);
@@ -107,7 +105,7 @@ public class ObjectManager : MonoBehaviour
             {
                 Debug.DrawRay(transform.position, direction * 100, Color.red, 0.5f);
                 // 5. 레이에 충돌한 오브젝트가 바닥이라면, 바닥의 특정 지점에 displayObject를 위치시킨다.
-                if (hit.collider.name == "Pokeball")
+                if (hit.collider.name == "Pokeball" && pokeball != null)
                 {
                     pokeball.transform.position = new Vector3(hit.point.x, hit.point.y, pokeball.transform.position.z);
                 }
@@ -116,6 +114,9 @@ public class ObjectManager : MonoBehaviour
         // 목적4: 포켓볼을 드래그&드랍으로 던지고 싶다.
         else if (Input.GetMouseButtonUp(0))
         {
+            if (pokeball == null)
+                return;
+
             endPos = Input.mousePosition;
             Vector3 deltaPos = endPos - startPos;
             float throwPower = deltaPos.magnitude;
@@ -123,7 +124,7 @@ public class ObjectManager : MonoBehaviour
             // 목적4: 포켓폴을 던지고 싶다.
             pokeball.GetComponent<Rigidbody>().useGravity = true;
             pokeball.GetComponent<Rigidbody>().AddForce(direction * throwPower * throwPowerMultiplier, ForceMode.Impulse);
-            Invoke("ResetPokeball", 2);
+            Invoke("ResetPokeball", pokeballResetTime);
         }
 
 #elif UNITY_ANDROID

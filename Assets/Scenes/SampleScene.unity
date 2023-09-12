@@ -569,8 +569,10 @@ MonoBehaviour:
   indicator: {fileID: 1122836974}
   displayObject: {fileID: 422257372}
   editorPlane: {fileID: 1612948235}
-  rotationScaleMultiplier: 0.1
+  rotationScaleMultiplier: 0.5
   pokeball: {fileID: 1408245213}
+  throwPowerMultiplier: 0.005
+  pokeballResetTime: 3
 --- !u!114 &601674198
 MonoBehaviour:
   m_ObjectHideFlags: 0
