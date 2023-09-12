@@ -11,6 +11,9 @@ using UnityEngine.XR.ARFoundation;
 // 필요속성: Indicator GameObject
 // 목적2: 터치입력이 들어오면 Cyberpunk car를 감지된 바닥 위에 위치시킨다.
 // 필요속성2: Cyberpunk car
+// 목적3: 클릭(터치) 상태라면 오브젝트를 변화량 만큼 Y축으로 회전시킨다.
+// 필요속성3: 마우스 이동 변화량 벡터
+// 목적4: 포켓폴을 던지고 싶다.
 public class ObjectManager : MonoBehaviour
 {
 
@@ -22,16 +25,28 @@ public class ObjectManager : MonoBehaviour
     public GameObject displayObject;
     public GameObject editorPlane;
 
+    // 필요속성3: 마우스 이전 프레임 벡터, 마우스 이동 변화량 벡터, 회전 속도 조절 변수
+    Vector3 prevPos;
+    Vector3 deltaPos;
+    public float rotationScaleMultiplier = 0.1f;
+    Vector3 startPos;
+    Vector3 endPos;
+    public Transform pokeball;
+    Vector3 originPokeballPos;
+    public float throwPowerMultiplier = 0.005f;
+
     // Start is called before the first frame update
     void Start()
     {
         raycastManager = GetComponent<ARRaycastManager>();
 
         displayObject.SetActive(false);
+        originPokeballPos = pokeball.transform.position;
 #if UNITY_EDITOR
         editorPlane.SetActive(true);
 #elif UNITY_ANDROID
         editorPlane.SetActive(false);
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
 #endif
     }
 
@@ -46,20 +61,21 @@ public class ObjectManager : MonoBehaviour
     {
 
 #if UNITY_EDITOR
-        if(Input.GetMouseButton(0))
-        {
-            // 내 스크린 스페이스의 클릭된 지점으로 부터 레이를 발사한다.
-            // 1. 스크린을 터치한 좌표
-            Vector3 touchPos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane);
-            // 2. 스크린의 터치한 좌표를 World Point로
-            Vector3 touchWorldPos = Camera.main.ScreenToWorldPoint(touchPos);
-            // 3. 방향을 설정
-            Vector3 direction = (touchWorldPos - transform.position).normalized;
-            // 4. 해당 방향으로 레이를 쏜다.
-            Ray ray = new Ray(transform.position, direction);
-            RaycastHit hit;
 
-            if(Physics.Raycast(ray, out hit, Mathf.Infinity))
+        // 내 스크린 스페이스의 클릭된 지점으로 부터 레이를 발사한다.
+        // 1. 스크린을 터치한 좌표
+        Vector3 touchPos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane);
+        // 2. 스크린의 터치한 좌표를 World Point로
+        Vector3 touchWorldPos = Camera.main.ScreenToWorldPoint(touchPos);
+        // 3. 방향을 설정
+        Vector3 direction = (touchWorldPos - transform.position).normalized;
+        // 4. 해당 방향으로 레이를 쏜다.
+        Ray ray = new Ray(transform.position, direction);
+        RaycastHit hit;
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (Physics.Raycast(ray, out hit, Mathf.Infinity))
             {
                 Debug.DrawRay(transform.position, direction * 100, Color.red, 0.5f);
                 // 5. 레이에 충돌한 오브젝트가 바닥이라면, 바닥의 특정 지점에 displayObject를 위치시킨다.
@@ -76,6 +92,38 @@ public class ObjectManager : MonoBehaviour
                     displayObject.SetActive(false);
                 }
             }
+
+            prevPos = Input.mousePosition;
+        }
+        // 목적3: 클릭(터치) 상태라면 오브젝트를 변화량 만큼 Y축으로 회전시킨다.
+        else if (Input.GetMouseButton(0)) 
+        {
+            deltaPos = (Input.mousePosition - prevPos);
+            
+            // y축으로 변화량 만큼 회전시킨다.
+            displayObject.transform.Rotate(transform.up, -deltaPos.normalized.x * rotationScaleMultiplier);
+
+            if (Physics.Raycast(ray, out hit, Mathf.Infinity))
+            {
+                Debug.DrawRay(transform.position, direction * 100, Color.red, 0.5f);
+                // 5. 레이에 충돌한 오브젝트가 바닥이라면, 바닥의 특정 지점에 displayObject를 위치시킨다.
+                if (hit.collider.name == "Pokeball")
+                {
+                    pokeball.transform.position = new Vector3(hit.point.x, hit.point.y, pokeball.transform.position.z);
+                }
+            }
+        }
+        // 목적4: 포켓볼을 드래그&드랍으로 던지고 싶다.
+        else if (Input.GetMouseButtonUp(0))
+        {
+            endPos = Input.mousePosition;
+            Vector3 deltaPos = endPos - startPos;
+            float throwPower = deltaPos.magnitude;
+
+            // 목적4: 포켓폴을 던지고 싶다.
+            pokeball.GetComponent<Rigidbody>().useGravity = true;
+            pokeball.GetComponent<Rigidbody>().AddForce(direction * throwPower * throwPowerMultiplier, ForceMode.Impulse);
+            Invoke("ResetPokeball", 2);
         }
 
 #elif UNITY_ANDROID
@@ -118,6 +166,23 @@ public class ObjectManager : MonoBehaviour
                     displayObject.SetActive(true);
                 }
             }
+            // 목적3: 클릭(터치) 상태라면 오브젝트를 변화량 만큼 Y축으로 회전시킨다.
+            else if (touch.phase == TouchPhase.Moved)
+            {
+                Vector3 deltaPos = touch.deltaPosition;
+
+                // y축으로 변화량 만큼 회전시킨다.
+                displayObject.transform.Rotate(transform.up, -deltaPos.normalized.x * rotationScaleMultiplier);
+            }
         }
+    }
+
+    void ResetPokeball()
+    {
+        pokeball.position = originPokeballPos;
+        pokeball.rotation = Quaternion.identity;
+        pokeball.GetComponent<Rigidbody>().velocity = Vector3.zero;
+        pokeball.GetComponent<Rigidbody>().angularVelocity= Vector3.zero;
+        pokeball.GetComponent<Rigidbody>().useGravity = false;
     }
 }
