@@ -1,4 +1,4 @@
-//#define UNITY_EDITOR
+ï»¿//#define UNITY_EDITOR
 #define UNITY_ANDROID
 
 using System.Collections;
@@ -7,25 +7,25 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 
-// ¸ñÀû: ARRay¸¦ ¹ß»çÇÏ¿© °ËÃâµÈ PlaneÀÇ Á¤º¸¸¦ ¹Ş¾Æ ±× À§Ä¡¿¡ Indicator¸¦ À§Ä¡½ÃÅ²´Ù.
-// ÇÊ¿ä¼Ó¼º: Indicator GameObject
-// ¸ñÀû2: ÅÍÄ¡ÀÔ·ÂÀÌ µé¾î¿À¸é Cyberpunk car¸¦ °¨ÁöµÈ ¹Ù´Ú À§¿¡ À§Ä¡½ÃÅ²´Ù.
-// ÇÊ¿ä¼Ó¼º2: Cyberpunk car
-// ¸ñÀû3: Å¬¸¯(ÅÍÄ¡) »óÅÂ¶ó¸é ¿ÀºêÁ§Æ®¸¦ º¯È­·® ¸¸Å­ YÃàÀ¸·Î È¸Àü½ÃÅ²´Ù.
-// ÇÊ¿ä¼Ó¼º3: ¸¶¿ì½º ÀÌµ¿ º¯È­·® º¤ÅÍ
-// ¸ñÀû4: Æ÷ÄÏÆúÀ» ´øÁö°í ½Í´Ù.
+// ëª©ì : ARRayë¥¼ ë°œì‚¬í•˜ì—¬ ê²€ì¶œëœ Planeì˜ ì •ë³´ë¥¼ ë°›ì•„ ê·¸ ìœ„ì¹˜ì— Indicatorë¥¼ ìœ„ì¹˜ì‹œí‚¨ë‹¤.
+// í•„ìš”ì†ì„±: Indicator GameObject
+// ëª©ì 2: í„°ì¹˜ì…ë ¥ì´ ë“¤ì–´ì˜¤ë©´ Cyberpunk carë¥¼ ê°ì§€ëœ ë°”ë‹¥ ìœ„ì— ìœ„ì¹˜ì‹œí‚¨ë‹¤.
+// í•„ìš”ì†ì„±2: Cyberpunk car
+// ëª©ì 3: í´ë¦­(í„°ì¹˜) ìƒíƒœë¼ë©´ ì˜¤ë¸Œì íŠ¸ë¥¼ ë³€í™”ëŸ‰ ë§Œí¼ Yì¶•ìœ¼ë¡œ íšŒì „ì‹œí‚¨ë‹¤.
+// í•„ìš”ì†ì„±3: ë§ˆìš°ìŠ¤ ì´ë™ ë³€í™”ëŸ‰ ë²¡í„°
+// ëª©ì 4: í¬ì¼“í´ì„ ë˜ì§€ê³  ì‹¶ë‹¤.
 public class ObjectManager : MonoBehaviour
 {
 
-    // ÇÊ¿ä¼Ó¼º: Indicator GameObject
+    // í•„ìš”ì†ì„±: Indicator GameObject
     public GameObject indicator;
     ARRaycastManager raycastManager;
 
-    // ÇÊ¿ä¼Ó¼º2: Cyberpunk car
+    // í•„ìš”ì†ì„±2: Cyberpunk car
     public GameObject displayObject;
     public GameObject editorPlane;
 
-    // ÇÊ¿ä¼Ó¼º3: ¸¶¿ì½º ÀÌÀü ÇÁ·¹ÀÓ º¤ÅÍ, ¸¶¿ì½º ÀÌµ¿ º¯È­·® º¤ÅÍ, È¸Àü ¼Óµµ Á¶Àı º¯¼ö
+    // í•„ìš”ì†ì„±3: ë§ˆìš°ìŠ¤ ì´ì „ í”„ë ˆì„ ë²¡í„°, ë§ˆìš°ìŠ¤ ì´ë™ ë³€í™”ëŸ‰ ë²¡í„°, íšŒì „ ì†ë„ ì¡°ì ˆ ë³€ìˆ˜
     Vector3 prevPos;
     Vector3 deltaPos;
     public float rotationScaleMultiplier = 0.1f;
@@ -56,18 +56,18 @@ public class ObjectManager : MonoBehaviour
         DetectPlane();
     }
 
-    // ¸ñÀû: ARRay¸¦ ¹ß»çÇÏ¿© °ËÃâµÈ PlaneÀÇ Á¤º¸¸¦ ¹Ş¾Æ ±× À§Ä¡¿¡ Indicator¸¦ À§Ä¡½ÃÅ²´Ù.
+    // ëª©ì : ARRayë¥¼ ë°œì‚¬í•˜ì—¬ ê²€ì¶œëœ Planeì˜ ì •ë³´ë¥¼ ë°›ì•„ ê·¸ ìœ„ì¹˜ì— Indicatorë¥¼ ìœ„ì¹˜ì‹œí‚¨ë‹¤.
     void DetectPlane()
     {
 #if UNITY_EDITOR
-        // ³» ½ºÅ©¸° ½ºÆäÀÌ½ºÀÇ Å¬¸¯µÈ ÁöÁ¡À¸·Î ºÎÅÍ ·¹ÀÌ¸¦ ¹ß»çÇÑ´Ù.
-        // 1. ½ºÅ©¸°À» ÅÍÄ¡ÇÑ ÁÂÇ¥
+        // ë‚´ ìŠ¤í¬ë¦° ìŠ¤í˜ì´ìŠ¤ì˜ í´ë¦­ëœ ì§€ì ìœ¼ë¡œ ë¶€í„° ë ˆì´ë¥¼ ë°œì‚¬í•œë‹¤.
+        // 1. ìŠ¤í¬ë¦°ì„ í„°ì¹˜í•œ ì¢Œí‘œ
         Vector3 touchPos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane);
-        // 2. ½ºÅ©¸°ÀÇ ÅÍÄ¡ÇÑ ÁÂÇ¥¸¦ World Point·Î
+        // 2. ìŠ¤í¬ë¦°ì˜ í„°ì¹˜í•œ ì¢Œí‘œë¥¼ World Pointë¡œ
         Vector3 touchWorldPos = Camera.main.ScreenToWorldPoint(touchPos);
-        // 3. ¹æÇâÀ» ¼³Á¤
+        // 3. ë°©í–¥ì„ ì„¤ì •
         Vector3 direction = (touchWorldPos - transform.position).normalized;
-        // 4. ÇØ´ç ¹æÇâÀ¸·Î ·¹ÀÌ¸¦ ½ğ´Ù.
+        // 4. í•´ë‹¹ ë°©í–¥ìœ¼ë¡œ ë ˆì´ë¥¼ ìœë‹¤.
         Ray ray = new Ray(transform.position, direction);
         RaycastHit hit;
 
@@ -76,7 +76,7 @@ public class ObjectManager : MonoBehaviour
             if (Physics.Raycast(ray, out hit, Mathf.Infinity))
             {
                 Debug.DrawRay(transform.position, direction * 100, Color.red, 0.5f);
-                // 5. ·¹ÀÌ¿¡ Ãæµ¹ÇÑ ¿ÀºêÁ§Æ®°¡ ¹Ù´ÚÀÌ¶ó¸é, ¹Ù´ÚÀÇ Æ¯Á¤ ÁöÁ¡¿¡ displayObject¸¦ À§Ä¡½ÃÅ²´Ù.
+                // 5. ë ˆì´ì— ì¶©ëŒí•œ ì˜¤ë¸Œì íŠ¸ê°€ ë°”ë‹¥ì´ë¼ë©´, ë°”ë‹¥ì˜ íŠ¹ì • ì§€ì ì— displayObjectë¥¼ ìœ„ì¹˜ì‹œí‚¨ë‹¤.
                 if(hit.collider.name.Contains("Plane"))
                 {
                     Debug.DrawRay(transform.position, direction * 100, Color.green, 0.5f);
@@ -93,25 +93,25 @@ public class ObjectManager : MonoBehaviour
 
             prevPos = Input.mousePosition;
         }
-        // ¸ñÀû3: Å¬¸¯(ÅÍÄ¡) »óÅÂ¶ó¸é ¿ÀºêÁ§Æ®¸¦ º¯È­·® ¸¸Å­ YÃàÀ¸·Î È¸Àü½ÃÅ²´Ù.
+        // ëª©ì 3: í´ë¦­(í„°ì¹˜) ìƒíƒœë¼ë©´ ì˜¤ë¸Œì íŠ¸ë¥¼ ë³€í™”ëŸ‰ ë§Œí¼ Yì¶•ìœ¼ë¡œ íšŒì „ì‹œí‚¨ë‹¤.
         else if (Input.GetMouseButton(0)) 
         {
             deltaPos = (Input.mousePosition - prevPos);
             
-            // yÃàÀ¸·Î º¯È­·® ¸¸Å­ È¸Àü½ÃÅ²´Ù.
+            // yì¶•ìœ¼ë¡œ ë³€í™”ëŸ‰ ë§Œí¼ íšŒì „ì‹œí‚¨ë‹¤.
             displayObject.transform.Rotate(transform.up, -deltaPos.normalized.x * rotationScaleMultiplier);
 
             if (Physics.Raycast(ray, out hit, Mathf.Infinity))
             {
                 Debug.DrawRay(transform.position, direction * 100, Color.red, 0.5f);
-                // 5. ·¹ÀÌ¿¡ Ãæµ¹ÇÑ ¿ÀºêÁ§Æ®°¡ ¹Ù´ÚÀÌ¶ó¸é, ¹Ù´ÚÀÇ Æ¯Á¤ ÁöÁ¡¿¡ displayObject¸¦ À§Ä¡½ÃÅ²´Ù.
+                // 5. ë ˆì´ì— ì¶©ëŒí•œ ì˜¤ë¸Œì íŠ¸ê°€ ë°”ë‹¥ì´ë¼ë©´, ë°”ë‹¥ì˜ íŠ¹ì • ì§€ì ì— displayObjectë¥¼ ìœ„ì¹˜ì‹œí‚¨ë‹¤.
                 if (hit.collider.name == "Pokeball" && pokeball != null)
                 {
                     pokeball.transform.position = new Vector3(hit.point.x, hit.point.y, pokeball.transform.position.z);
                 }
             }
         }
-        // ¸ñÀû4: Æ÷ÄÏº¼À» µå·¡±×&µå¶øÀ¸·Î ´øÁö°í ½Í´Ù.
+        // ëª©ì 4: í¬ì¼“ë³¼ì„ ë“œë˜ê·¸&ë“œëìœ¼ë¡œ ë˜ì§€ê³  ì‹¶ë‹¤.
         else if (Input.GetMouseButtonUp(0))
         {
             if (pokeball == null)
@@ -121,20 +121,20 @@ public class ObjectManager : MonoBehaviour
             Vector3 deltaPos = endPos - startPos;
             float throwPower = deltaPos.magnitude;
 
-            // ¸ñÀû4: Æ÷ÄÏÆúÀ» ´øÁö°í ½Í´Ù.
+            // ëª©ì 4: í¬ì¼“í´ì„ ë˜ì§€ê³  ì‹¶ë‹¤.
             pokeball.GetComponent<Rigidbody>().useGravity = true;
             pokeball.GetComponent<Rigidbody>().AddForce(direction * throwPower * throwPowerMultiplier, ForceMode.Impulse);
             Invoke("ResetPokeball", pokeballResetTime);
         }
 
 #elif UNITY_ANDROID
-        // ½ºÅ©¸° Áß¾ÓÀÇ À§Ä¡
+        // ìŠ¤í¬ë¦° ì¤‘ì•™ì˜ ìœ„ì¹˜
         Vector2 screenCenter = new Vector2 (Screen.width * 0.5f, Screen.height * 0.5f);
 
-        // Ãæµ¹ÇÑ ·¹ÀÌÀÇ Á¤º¸¸¦ ´ã´Â º¯¼ö
+        // ì¶©ëŒí•œ ë ˆì´ì˜ ì •ë³´ë¥¼ ë‹´ëŠ” ë³€ìˆ˜
         List<ARRaycastHit> hitInfo = new List<ARRaycastHit>();
 
-        // ·¹ÀÌ¸¦ ¹ß»çÇÏ¿© ºÎ‹HÈù ÇÃ·¹ÀÎÀÇ Á¤º¸¸¦ hitInfo¿¡ ÀúÀå
+        // ë ˆì´ë¥¼ ë°œì‚¬í•˜ì—¬ ë¶€ë”«íŒ í”Œë ˆì¸ì˜ ì •ë³´ë¥¼ hitInfoì— ì €ì¥
         if(raycastManager.Raycast(screenCenter, hitInfo, UnityEngine.XR.ARSubsystems.TrackableType.Planes))
         {
             indicator.SetActive(true);
@@ -150,7 +150,7 @@ public class ObjectManager : MonoBehaviour
 #endif
     }
 
-    // ¸ñÀû2: ÅÍÄ¡ÀÔ·ÂÀÌ µé¾î¿À¸é Cyberpunk car¸¦ °¨ÁöµÈ ¹Ù´Ú À§¿¡ À§Ä¡½ÃÅ²´Ù.
+    // ëª©ì 2: í„°ì¹˜ì…ë ¥ì´ ë“¤ì–´ì˜¤ë©´ Cyberpunk carë¥¼ ê°ì§€ëœ ë°”ë‹¥ ìœ„ì— ìœ„ì¹˜ì‹œí‚¨ë‹¤.
     void TouchScreen()
     {
         if(Input.touchCount > 0)
@@ -159,7 +159,7 @@ public class ObjectManager : MonoBehaviour
 
             if(touch.phase == TouchPhase.Began)
             {
-                // indicator°¡ planeÀ» Ã£À¸¸é
+                // indicatorê°€ planeì„ ì°¾ìœ¼ë©´
                 if(indicator.activeSelf)
                 {
                     displayObject.transform.position = indicator.transform.position;
@@ -167,12 +167,12 @@ public class ObjectManager : MonoBehaviour
                     displayObject.SetActive(true);
                 }
             }
-            // ¸ñÀû3: Å¬¸¯(ÅÍÄ¡) »óÅÂ¶ó¸é ¿ÀºêÁ§Æ®¸¦ º¯È­·® ¸¸Å­ YÃàÀ¸·Î È¸Àü½ÃÅ²´Ù.
+            // ëª©ì 3: í´ë¦­(í„°ì¹˜) ìƒíƒœë¼ë©´ ì˜¤ë¸Œì íŠ¸ë¥¼ ë³€í™”ëŸ‰ ë§Œí¼ Yì¶•ìœ¼ë¡œ íšŒì „ì‹œí‚¨ë‹¤.
             else if (touch.phase == TouchPhase.Moved)
             {
                 Vector3 deltaPos = touch.deltaPosition;
 
-                // yÃàÀ¸·Î º¯È­·® ¸¸Å­ È¸Àü½ÃÅ²´Ù.
+                // yì¶•ìœ¼ë¡œ ë³€í™”ëŸ‰ ë§Œí¼ íšŒì „ì‹œí‚¨ë‹¤.
                 displayObject.transform.Rotate(transform.up, -deltaPos.normalized.x * rotationScaleMultiplier);
             }
         }
