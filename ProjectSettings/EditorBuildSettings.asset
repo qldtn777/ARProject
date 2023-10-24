@@ -7,7 +7,7 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/Scenes/FaceDetectionWithMesh.unity
-    guid: 81144daf0c3a77b44802442c57ebc961
+    guid: 101a01224b458874d82929a7a4c56131
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 26f188fa49b580843b27c3e439893a45, type: 2}
     com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: c8d8e126fd3ef7e43aaf2f03cf83ce6d, type: 2}

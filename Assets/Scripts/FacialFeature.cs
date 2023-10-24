@@ -1,89 +1,135 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.XR.ARCore;
 using UnityEngine.XR.ARFoundation;
 
+// 리전 포지션을 찾아서 그 위치에 오브젝트를 위치시킨다.
 public class FacialFeature : MonoBehaviour
 {
     [SerializeField] ARFaceManager faceManager;
     [SerializeField] List<GameObject> featureIndicators = new List<GameObject>();
-    int regionPosNum = 3;
-    ARCoreFaceSubsystem faceSubsystem;
-
-    NativeArray<ARCoreFaceRegionData> faceData;
-
     [SerializeField] List<GameObject> everyfeaturesIndicators = new List<GameObject>();
-    int everyPosNum = 468;
-
-    // Start is called before the first frame update
+    [SerializeField] TextMeshProUGUI textMeshProUGUI;
+    int regionPosCnt = 3;
+    int everyPosCnt = 468;
+    ARCoreFaceSubsystem faceSubsystem;
+    NativeArray<ARCoreFaceRegionData> faceData;
+    int currentState = 0;
+    int maxState = 2;
+    
     void Start()
     {
-        for (int i = 0; i < regionPosNum; i++)
+        for(int i = 0; i < regionPosCnt; i++)
         {
-            GameObject Indicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            Indicator.transform.localScale = Vector3.one * 0.02f;
-            featureIndicators.Add(Indicator);
-            Indicator.SetActive(false);
+            GameObject indicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            indicator.transform.localScale = Vector3.one * 0.02f;
+            featureIndicators.Add(indicator);
+            indicator.SetActive(false);
         }
 
-        //faceManager.facesChanged += OnLocateIndicatorsOnRegionPoses;
+        for(int i = 0; i < everyPosCnt; i++)
+        {
+            GameObject indicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            indicator.transform.localScale = Vector3.one * 0.005f;
+            everyfeaturesIndicators.Add(indicator);
+            indicator.SetActive(false);
+        }
 
         faceSubsystem = (ARCoreFaceSubsystem)faceManager.subsystem;
+        
+        faceManager.facesChanged += OnLocateIndicatorsOnRegionPoses; // Region pose 전용
+        faceManager.facesChanged += OnLocateIndicatorsOnEveryFeatures; // Total pose 전용
 
-
-        for (int i = 0; i < everyfeaturesIndicators.Count; i++)
-        {
-            GameObject Indicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            Indicator.transform.localScale = Vector3.one * 0.005f;
-            everyfeaturesIndicators.Add(Indicator);
-            Indicator.SetActive(false);
-        }
-        faceManager.facesChanged += OnLocateIndicatorsOnEveryFeatures;
+        currentState = maxState;
     }
+
+
+    public void OnChangeStateBtnClkEvent()
+    {
+        currentState++;
+
+        if (currentState > maxState)
+        {
+            SetText("Normal State");
+
+            currentState = 0;
+        }
+    }
+
+    void SetText(string state)
+    {
+        textMeshProUGUI.text = state;
+    }
+
 
     void OnLocateIndicatorsOnRegionPoses(ARFacesChangedEventArgs args)
     {
-        if (args.updated.Count > 0)
+        if (currentState == 1)
         {
-            faceSubsystem.GetRegionPoses(args.updated[0].trackableId,Unity.Collections.Allocator.Persistent,ref faceData);
+            SetText("Region poses");
 
-            for(int i = 0; i < faceData.Length; i++)
+            // 업데이트 된 내용이 있다면 특징점에 Sphere를 위치시킨다.
+            if (args.updated.Count > 0)
             {
-                featureIndicators[i].transform.position = faceData[i].pose.position;
-                featureIndicators[i].transform.rotation = faceData[i].pose.rotation;
-                featureIndicators[i].SetActive(true);
+                faceSubsystem.GetRegionPoses(args.updated[0].trackableId, Allocator.Persistent, ref faceData);
+
+                for (int i = 0; i < faceData.Length; i++)
+                {
+                    featureIndicators[i].transform.position = faceData[i].pose.position;
+                    featureIndicators[i].transform.rotation = faceData[i].pose.rotation;
+                    featureIndicators[i].SetActive(true);
+                }
+            }
+            else if (args.removed.Count > 0)
+            {
+                for (int i = 0; i < faceData.Length; i++)
+                {
+                    featureIndicators[i].SetActive(false);
+                }
             }
         }
-        else if (args.removed.Count > 0)
+        else
         {
             for (int i = 0; i < faceData.Length; i++)
             {
                 featureIndicators[i].SetActive(false);
             }
         }
+
     }
 
     void OnLocateIndicatorsOnEveryFeatures(ARFacesChangedEventArgs args)
     {
-        if (args.updated.Count > 0)
+        if(currentState == 2)
         {
-            for (int i = 0; i < args.updated[0].vertices.Length; i++)
-            {
-                Vector3 vertPos = args.updated[0].vertices[i];
-                Vector3 worldVertPos = args.updated[0].transform.TransformPoint(vertPos);
+            SetText("Total poses");
 
-                everyfeaturesIndicators[i].transform.position = worldVertPos;
-                everyfeaturesIndicators[i].SetActive(false);
+            if (args.updated.Count > 0)
+            {
+                for (int i = 0; i < args.updated[0].vertices.Length; i++)
+                {
+                    Vector3 vertPos = args.updated[0].vertices[i];
+                    Vector3 worldVertPos = args.updated[0].transform.TransformPoint(vertPos);
+
+                    everyfeaturesIndicators[i].transform.position = worldVertPos;
+                    everyfeaturesIndicators[i].SetActive(true);
+                }
+            }
+            else if (args.removed.Count > 0)
+            {
+                for (int i = 0; i < args.updated[0].vertices.Length; i++)
+                {
+                    everyfeaturesIndicators[i].SetActive(false);
+                }
             }
         }
-        else if (args.removed.Count > 0)
+        else
         {
             for (int i = 0; i < args.updated[0].vertices.Length; i++)
             {
-                
                 everyfeaturesIndicators[i].SetActive(false);
             }
         }
